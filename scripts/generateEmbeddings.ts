@@ -1,49 +1,41 @@
-import { OpenAI } from "openai";
-import fs from "fs";
-import path from "path";
+import { pipeline } from '@xenova/transformers';
+import fs from 'fs/promises';
 
-// Load your OpenAI API key
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// Load your dataset (adjust path as needed)
+const loadDocuments = async () => {
+  const raw = await fs.readFile('data/squadContexts.json', 'utf-8');
+  return JSON.parse(raw);
+};
 
-// Load the extracted contexts
-const contextsPath = path.join(__dirname, "../data/squadContexts.json");
-const contexts = JSON.parse(fs.readFileSync(contextsPath, "utf8"));
+const saveEmbeddings = async (embeddings: any) => {
+  await fs.writeFile('data/embeddings.json', JSON.stringify(embeddings, null, 2), 'utf-8');
+};
 
-async function generateEmbeddings() {
-  const embeddings = [];
+const generateEmbeddings = async () => {
 
-  // Generate embeddings for each context
-  for (let i = 0; i < contexts.length; i++) {
-    try {
-      const response = await openai.embeddings.create({
-        model: "text-embedding-ada-002", // Use OpenAI's ADA model for embeddings
-        input: contexts[i].content,
-      });
+  // Load the dataset containing the documents
+  const documents = await loadDocuments();
 
-      embeddings.push({
-        id: contexts[i].id,
-        content: contexts[i].content,
-        embedding: response.data[0].embedding,
-      });
+  // Load the Sentence Transformer model for feature extraction
+  const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
 
-      if (i % 10 === 0) {
-        console.log(`Processed ${i + 1} contexts...`);
-      }
-    } catch (error) {
-      console.error(`Error embedding context ${i + 1}:`, error);
-    }
+  const results = [];
+  for (const doc of documents) {
+    const output = await extractor(doc.content, { pooling: 'mean', normalize: true });
+
+    // Ensure output.data is an array of numbers
+    const embedding = Object.values(output.data);
+    results.push({
+      id: doc.id,
+      title: doc.title,
+      content: doc.content,
+      embedding: embedding,
+    });
   }
 
   // Save the embeddings to a file
-  fs.writeFileSync(
-    path.join(__dirname, "../data/embeddings.json"),
-    JSON.stringify(embeddings, null, 2),
-    "utf8"
-  );
-  
-  console.log("✅ Embeddings saved to /data/embeddings.json");
-}
+  await saveEmbeddings(results);
+  console.log('✅ Embeddings generated!');
+};
 
 generateEmbeddings();
