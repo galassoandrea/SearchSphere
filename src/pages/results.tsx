@@ -20,10 +20,8 @@ export default function ResultsPage() {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: q }),
+        const response = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
+          method: "GET",
         });
 
         const data = await response.json();
