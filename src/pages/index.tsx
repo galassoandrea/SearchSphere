@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import SearchBar from '../components/SearchBar';
-import '../styles/globals.css'
 
 export default function Home() {
   return (
