@@ -20,20 +20,25 @@ function shuffle<T>(array: T[]): T[] {
 const allContexts: { id: number; content: string }[] = [];
 let idCounter = 1;
 
-// Extract contexts from the raw data
-json.data.forEach((article: any) => {
-  const firstParagraph = article.paragraphs[0]?.context?.trim();
-  if (firstParagraph) {
-    allContexts.push({
-      id: idCounter++,
-      content: firstParagraph,
-    });
-  }
+// Extract first 5 contexts from each raw article
+json.data.forEach((article: { paragraphs: { context: string }[] }) => {
+  // Take the first 5 paragraphs (or fewer if less are available)
+  const paragraphs = article.paragraphs.slice(0, 5);
+
+  paragraphs.forEach((p) => {
+    const context = p.context?.trim();
+    if (context) {
+      allContexts.push({
+        id: idCounter++,
+        content: context,
+      });
+    }
+  });
 });
 
 // Shuffle the contexts randomly and sample 100 items
 const shuffled = shuffle(allContexts);
-const sliced = shuffled.slice(0, 100);
+const sliced = shuffled.slice(0, 300);
 
 // Save the extracted contexts to a new JSON file
 fs.writeFileSync(outputPath, JSON.stringify(sliced, null, 2), "utf8");

@@ -29,14 +29,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const queryEmbedding: number[] = Object.values(output.data);
 
   // Compute similarities between query and each document embedding
-  const scored = documents.map((doc: any) => ({
+  const scored = documents.map((doc: { embedding: number[]; id: string; content: string }) => ({
     ...doc,
     score: cosineSimilarity(queryEmbedding, doc.embedding),
   }));
 
   // Sort and return top 5 matching documents
   const topResults = scored
-    .sort((a: any, b: any) => b.score - a.score)
+    .sort((a: { score: number }, b: { score: number }) => b.score - a.score)
     .slice(0, 5);
 
   res.status(200).json({ results: topResults });

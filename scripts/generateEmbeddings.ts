@@ -8,7 +8,7 @@ const loadDocuments = async () => {
 };
 
 // Function to save the generated embeddings to a file
-const saveEmbeddings = async (embeddings: any) => {
+const saveEmbeddings = async (embeddings: { id: string; title: string; content: string; embedding: number[] }[]) => {
   await fs.writeFile('data/embeddings.json', JSON.stringify(embeddings, null, 2), 'utf-8');
 };
 
