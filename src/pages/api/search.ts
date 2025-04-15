@@ -12,7 +12,7 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const query = req.query.q as string;
-
+  
   if (!query) {
     return res.status(400).json({ error: 'Missing query parameter ?q=' });
   }
@@ -28,13 +28,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const output = await extractor(query, { pooling: 'mean', normalize: true });
   const queryEmbedding: number[] = Object.values(output.data);
 
-  // Compute similarities
+  // Compute similarities between query and each document embedding
   const scored = documents.map((doc: any) => ({
     ...doc,
     score: cosineSimilarity(queryEmbedding, doc.embedding),
   }));
 
-  // Sort and return top 5
+  // Sort and return top 5 matching documents
   const topResults = scored
     .sort((a: any, b: any) => b.score - a.score)
     .slice(0, 5);

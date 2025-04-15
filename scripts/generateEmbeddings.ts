@@ -1,16 +1,18 @@
 import { pipeline } from '@xenova/transformers';
 import fs from 'fs/promises';
 
-// Load your dataset (adjust path as needed)
+// Function to load the dataset of documents
 const loadDocuments = async () => {
   const raw = await fs.readFile('data/squadContexts.json', 'utf-8');
   return JSON.parse(raw);
 };
 
+// Function to save the generated embeddings to a file
 const saveEmbeddings = async (embeddings: any) => {
   await fs.writeFile('data/embeddings.json', JSON.stringify(embeddings, null, 2), 'utf-8');
 };
 
+// Function to generate embeddings for the documents
 const generateEmbeddings = async () => {
 
   // Load the dataset containing the documents
@@ -20,6 +22,7 @@ const generateEmbeddings = async () => {
   const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
 
   const results = [];
+  // Extract embeddings for each document
   for (const doc of documents) {
     const output = await extractor(doc.content, { pooling: 'mean', normalize: true });
 
@@ -35,7 +38,7 @@ const generateEmbeddings = async () => {
 
   // Save the embeddings to a file
   await saveEmbeddings(results);
-  console.log('✅ Embeddings generated!');
+  console.log('Embeddings generated!');
 };
 
 generateEmbeddings();

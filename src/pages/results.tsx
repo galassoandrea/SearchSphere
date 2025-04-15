@@ -14,6 +14,7 @@ export default function ResultsPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch the results from the search API (if any) every time the query changes
   useEffect(() => {
     if (!q || typeof q !== "string") return;
 
@@ -52,6 +53,7 @@ export default function ResultsPage() {
           <p className="text-gray-500">No results found.</p>
         ) : (
           <div className="w-full max-w-2xl space-y-4">
+            {/* Show each search result in a separate div */}
             {results.map((result, index) => (
               <div
                 key={index}
