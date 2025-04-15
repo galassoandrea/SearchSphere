@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { pipeline } from '@xenova/transformers';
-import fs from 'fs/promises';
+import path from 'path';
+import fs from 'fs';
 
 // Cosine similarity function
 function cosineSimilarity(vecA: number[], vecB: number[]): number {
@@ -18,7 +19,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Load saved embeddings
-  const raw = await fs.readFile('data/embeddings.json', 'utf-8');
+  const filePath = path.resolve(process.cwd(), 'data', 'embeddings.json');
+  const raw = fs.readFileSync(filePath, 'utf-8');
   const documents = JSON.parse(raw);
 
   // Load embedding model
