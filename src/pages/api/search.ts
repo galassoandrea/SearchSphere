@@ -21,6 +21,10 @@ const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2'
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Set temporary cache path for Xenova on serverless
+  process.env.TRANSFORMERS_CACHE = '/tmp/transformers_cache';
+
+  // Get the query parameter from the request
   const query = req.query.q as string;
   
   if (!query) {
