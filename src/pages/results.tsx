@@ -2,12 +2,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
-type Sources = {
-  title: string;
-  content: string;
-  score: number;
-};
-
 export default function ResultsPage() {
   const router = useRouter();
   const { q } = router.query;

@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Filter out low relevance results
   const filtered = scored.filter((doc: { score: number; }) => doc.score > 0.3);
 
-  // Extract top 2 matching documents
+  // Extract the top 2 matching documents
   const topResults = filtered
     .sort((a: { score: number }, b: { score: number }) => b.score - a.score)
     .slice(0, 2);
