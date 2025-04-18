@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
-type SearchResult = {
+type Sources = {
   title: string;
   content: string;
   score: number;
@@ -11,7 +11,7 @@ type SearchResult = {
 export default function ResultsPage() {
   const router = useRouter();
   const { q } = router.query;
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Fetch the results from the search API (if any) every time the query changes
@@ -26,7 +26,9 @@ export default function ResultsPage() {
         });
 
         const data = await response.json();
-        setResults(data.results || []);
+
+        // Update state variables with the fetched data
+        setAnswer(data.answer || '');
       } catch (error) {
         console.error("Error fetching results:", error);
       } finally {
@@ -49,20 +51,12 @@ export default function ResultsPage() {
 
         {loading ? (
           <p className="text-gray-500">Searching...</p>
-        ) : results.length === 0 ? (
+        ) : answer === '' ? (
           <p className="text-gray-500">No results found.</p>
         ) : (
-          <div className="w-full max-w-2xl space-y-4">
-            {/* Show each search result in a separate div */}
-            {results.map((result, index) => (
-              <div
-                key={index}
-                className="bg-white p-4 rounded-lg shadow-md transition hover:shadow-lg"
-              >
-                <h2 className="text-lg font-semibold text-purple-600">{result.title}</h2>
-                <p className="text-gray-600">{result.content}</p>
-              </div>
-            ))}
+          <div className="w-full max-w-2xl space-y-6 bg-white p-6 mt-10 rounded-lg shadow-md border-l-4 border-purple-500">
+            <h2 className="text-xl font-semibold text-purple-700 mb-2">Generated Answer</h2>
+            <p className="text-gray-700 whitespace-pre-line">{answer}</p>
           </div>
         )}
       </main>

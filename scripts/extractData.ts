@@ -9,37 +9,39 @@ const outputPath = path.join(__dirname, "../data/squadContexts.json");
 const rawData = fs.readFileSync(rawPath, "utf8");
 const json = JSON.parse(rawData);
 
-// Function to randomly shuffle the documents
-function shuffle<T>(array: T[]): T[] {
-  return array
-    .map((value) => ({ value, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ value }) => value);
-}
-
 const allContexts: { id: number; content: string }[] = [];
 let idCounter = 1;
 
-// Extract first 5 contexts from each raw article
+// Extract the first 2 paragraphs from each raw article
 json.data.forEach((article: { paragraphs: { context: string }[] }) => {
-  // Take the first 5 paragraphs (or fewer if less are available)
-  const paragraphs = article.paragraphs.slice(0, 5);
+  const totalParagraphs = article.paragraphs.length;
 
-  paragraphs.forEach((p) => {
-    const context = p.context?.trim();
-    if (context) {
-      allContexts.push({
-        id: idCounter++,
-        content: context,
-      });
+  // Only proceed if the article has at least 2 paragraphs
+  if (totalParagraphs >= 2) {
+    const first = article.paragraphs[0]?.context?.trim();
+    const second = article.paragraphs[1]?.context?.trim();
+
+    [first, second].forEach((paragraph) => {
+      if (paragraph) {
+        allContexts.push({
+          id: idCounter++,
+          content: paragraph,
+        });
+      }
+    });
+  } else {
+    // If there is just one paragraph, take it
+    const paragraph = article.paragraphs[0]?.context?.trim();
+
+    if (paragraph) {
+        allContexts.push({
+          id: idCounter++,
+          content: paragraph,
+        });
     }
-  });
+  }
 });
 
-// Shuffle the contexts randomly and sample 100 items
-const shuffled = shuffle(allContexts);
-const sliced = shuffled.slice(0, 300);
-
 // Save the extracted contexts to a new JSON file
-fs.writeFileSync(outputPath, JSON.stringify(sliced, null, 2), "utf8");
-console.log(`Extracted ${sliced.length} contexts to squadContexts.json`);
+fs.writeFileSync(outputPath, JSON.stringify(allContexts, null, 2), "utf8");
+console.log(`Extracted ${allContexts.length} contexts to squadContexts.json`);
