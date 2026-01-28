@@ -70,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Generate the answer using a Gemini model with the Gemini API
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.0-flash",
       contents: prompt,
     });
 
