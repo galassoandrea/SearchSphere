@@ -2,6 +2,7 @@
 
 SearchSphere is a very simple RAG Q&A search engine built using Next.js.  
 It allows users to write natural language queries and then generates a relevant answer based on a set of documents from the SQuAD 2.0 dataset or from its memory.
+
 ---
 
 ## 📌 How It Works
