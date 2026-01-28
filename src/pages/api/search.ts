@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
-import { pipeline } from '@xenova/transformers';
+import { pipeline } from '@huggingface/transformers';
 import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });

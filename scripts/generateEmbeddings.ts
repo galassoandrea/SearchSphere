@@ -1,4 +1,4 @@
-import { pipeline } from '@xenova/transformers';
+import { pipeline } from '@huggingface/transformers';
 import fs from 'fs/promises';
 
 // Function to load the dataset of documents
