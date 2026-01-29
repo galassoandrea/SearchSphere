@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
-import { pipeline } from '@huggingface/transformers';
+import { InferenceClient } from '@huggingface/inference';
 import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
@@ -15,7 +15,7 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
 }
 
 // Load extractor model
-const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+const hf = new InferenceClient(process.env.HUGGING_FACE_API_KEY);
 
 // Specify parameters to access to Gemini API for the generator model
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -37,8 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const documents = JSON.parse(raw);
 
   // Generate embedding for query using the extractor model
-  const extractorOutput = await extractor(query, { pooling: 'mean', normalize: true });
-  const queryEmbedding: number[] = Object.values(extractorOutput.data);
+  const queryEmbedding = await hf.featureExtraction({
+    model: 'sentence-transformers/all-MiniLM-L6-v2',
+    inputs: query,
+  }) as number[];
 
   // Compute similarities between query and each document embedding
   const scored = documents.map((doc: { embedding: number[]; id: string; content: string }) => ({
@@ -70,8 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Generate the answer using a Gemini model with the Gemini API
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.0-flash",
-      contents: prompt,
+      model: "gemini-3-flash-preview",
+      contents: prompt
     });
 
     const result = response.text || "No answer generated.";
